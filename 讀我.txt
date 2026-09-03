@@ -1,0 +1,20 @@
+─ │
+┌─┬─┐
+├─┼─┤
+│ │ │
+└─┴─┘
+
+    ┌──  pages───┬── sidebar.py      (sidebar頁面)
+    │            ├── st_home.py      (只是一個空白範例頁面-首頁)
+  ──┤            ├── st_me.py        (只是一個空白範例頁面-關於我)
+    │            ├── st_project.py   (只是一個空白範例頁面-專案總覽)
+    │            ├── st_project1.py   (只是一個空白範例頁面-商業分析)
+    │            ├── st_project2.py   (只是一個空白範例頁面-科學分析)
+    │            ├── st_project3.py   (只是一個空白範例頁面-氣象分析)  
+    │            └── st_project4.py   (只是一個空白範例頁面-時間一到返回總覽)
+    │
+    ├──  讀我.txt            (文件介紹)
+    ├──  streamlit介紹.txt   (streamlit功能介紹)
+    ├──  st_main1.py         (網頁連結範例1)
+    └──  st_main2.py         (網頁連結範例2，這個功能比較豐富)    
+    └──  st_main3.py         (網頁連結範例3，作業)

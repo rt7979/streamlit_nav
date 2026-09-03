@@ -1,0 +1,226 @@
+streamlit介紹：
+只適合做單頁網頁，不適合做大型網頁
+做大型網頁請用Django、Flask
+
+內容有主題性，簡單扼要，不要複雜
+
+有專門的網站可以布屬https://streamlit.io/
+
+
+
+# ------------------------------------------
+# ------------------------------------------
+
+安裝：
+uv add streamlit
+
+
+vscode：
+安裝streamlit外掛
+
+
+執行：
+開啟終端機
+使用 streamlit run xxx.py 執行程式
+
+
+使用：
+import streamlit as st
+
+
+
+
+
+
+
+
+
+# ------------------------------------------
+# ------------------------------------------
+
+# ---- 排版工具，輸出文字 ----
+
+# 「水平橫線」
+st.divider(width="stretch")
+st.subheader("數據分析", divider="rainbow") # 彩虹水平橫線
+st.html("<hr style='border: 1px solid #cccccc; margin: 20px 0;'>")  # 使用html語法
+st.markdown("---")  # 這一行會變成橫線  # 使用markdown語法
+
+
+
+
+
+
+
+# ==========================================
+# ==========================================
+
+# ---- 排版工具，輸出文字 ----
+
+# 字體顯示
+st.title("hello")
+st.header("hello")
+
+# 次級標題
+st.subheader(body, anchor=None, *, help=None, divider=False)
+st.subheader("hello")
+
+# 圖片或圖表的標題說明
+st.caption(body, *, help=None, unsafe_allow_html=False)
+st.caption("資料來源：2026 年度第一季內部統計報表（更新於 3 月）。")
+
+
+# 專門放程式的語法
+st.code("""
+        print("hello")
+    """)
+
+
+# 專門放markdown的語法
+st.markdown(
+    # hello
+    ## hello
+    ### hello
+)
+
+
+# 專門放html的語法
+st.html(<a..>)
+st.html('<a href="https://google.com" target="_blank" style="color: #FF4B4B; font-weight: bold;">前往 Google</a>')
+
+
+
+# 徽章(打勾勾)
+st.badge("已完成", icon=":material/check:", color="green")
+
+
+# 文字
+st.text("hello")
+
+
+# 文字(輸入程式)
+st.text("""
+        print("hello")
+    """)
+
+
+
+st.iframe() # 內嵌網頁
+
+
+
+
+
+
+# ==========================================
+# ==========================================
+
+# ---- 排版工具，輸入文字框 ----
+
+
+# 單行文字框
+name = st.text_input("請輸入您的姓名")
+phone = st.text_input("請輸入您的電話")
+if name and phone:
+    st.write(f"姓名：{name}，您的電話是 {phone}")
+
+
+
+# 文字框
+st.text_area(意見回覆)
+
+
+
+# 配合ai使用
+prompt = st.chat_input("請輸入訊息...")
+if prompt:
+    st.write(f"使用者輸入了：{prompt}")
+
+
+
+
+
+
+
+
+# ==========================================
+# ==========================================
+
+# ---- 排版工具，輸入數字 ----
+
+# 設定數字範圍，step：間距，format：數字顯示格式
+value = st.number_input(label, min_value=None, max_value=None, value="min", step=None, format=None)
+age = st.number_input("請輸入年齡", min_value=10, max_value=18)
+
+# 數值滑桿
+value = st.slider(label, min_value=None, max_value=None, value=None, step=None, format=None)
+age = st.slider("請選擇年齡", min_value=0, max_value=100, value=25)
+st.write(f"您選擇的年齡是：{age} 歲")
+
+
+# 雙數值滑桿
+price_range = st.slider("請選擇預算區間 (元)", min_value=0, max_value=10000, value=(1000, 5000)  # 傳入 Tuple 代表預設範圍)
+
+
+
+# ---- 排版工具，日期 ----
+st.date_input
+st.time_input
+
+
+# ==========================================
+# ==========================================
+
+# 水平排版
+s1, s2 = st.columns(2)
+with s1:
+    st.text_input("請輸入你的帳號")
+with s2:
+    st.text_input("請輸入你的密碼")
+
+
+# 傳入 [3, 1] 代表左邊佔 75%，右邊佔 25%
+c_img, c_txt = st.columns([3, 1])
+
+st.columns([2, 1])：左邊是右邊的 2 倍大（左 66.6%：右 33.3%）。
+st.columns([4, 1])：圖片極大，文字極小（左 80%：右 20%）。
+st.columns([0.7, 0.3])：用小數點精準控制百分比（左 70%：右 30%）。
+
+
+# ==========================================
+# ==========================================
+
+
+
+# 垂直排版
+st.container()
+
+
+# ==========================================
+# ==========================================
+
+
+# 下拉選單
+# s4 = st.selectbox("請選擇你的專案", ["專案A", "專案B", "專案C"])
+
+
+
+# ==========================================
+# ==========================================
+
+# 圖片
+st.image("images/palword.jpg", caption="這是一張圖片範例。")
+
+# logo專門語法
+st.logo("images/logo.png", size="large")
+
+
+
+
+
+# ==========================================
+# ==========================================
+
+# 固定顯示訊息在畫面底部
+with st.bottom:
+    st.write("關於我...")
