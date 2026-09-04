@@ -24,7 +24,6 @@ def get_stock_info(stock):
 def format_price(value):
     return "--" if value is None else f"{value:,.2f}"
 
-
 load_styles()
 
 stocks = {
