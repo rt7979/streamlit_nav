@@ -1,4 +1,8 @@
-"""Scrape Steam Hardware Survey video-card usage into a CSV file.
+"""
+
+steam網站，顯卡使用者比例
+
+Scrape Steam Hardware Survey video-card usage into a CSV file.
 
 Steam currently publishes only the latest five monthly columns on this page.
 The ten-year query is sent to Steam, but the script keeps the months actually
