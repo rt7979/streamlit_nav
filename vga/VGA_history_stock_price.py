@@ -1,6 +1,6 @@
 """下載指定公司歷史營收，並輸出為 CSV。
 
-台股使用 MOPS 月營收；NVDA 與 AMD 使用 SEC 公開的季度營收，並在
+台股使用 FinMind 月營收；NVDA 與 AMD 使用 SEC 公開的季度營收，並在
 ``period_type`` 欄位標示為 quarterly，不把季度資料重複冒充成月資料。
 """
 
@@ -22,7 +22,7 @@ COMPANIES = {
     "NVDA": {"name": "輝達", "market": "US", "cik": "0001045810"},
     "AMD": {"name": "AMD", "market": "US", "cik": "0000002488"},
 }
-MOPS_URL = "https://mops.twse.com.tw/mops/web/ajax_t05st10_ifrs"
+FINMIND_URL = "https://api.finmindtrade.com/api/v4/data"
 SEC_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
 FIELDS = ["ticker", "company_name", "market", "revenue_period", "period_type", "revenue", "currency", "source"]
 
@@ -43,27 +43,26 @@ def parse_revenue(value: object) -> float | None:
         return None
 
 
-def get_tw_monthly_revenue(session: requests.Session, ticker: str, company: dict[str, str], year: int, month: int):
-    response = session.post(
-        MOPS_URL,
-        data={"encodeURIComponent": "1", "step": "1", "firstin": "1", "off": "1", "TYPEK": "sii",
-              "co_id": company["code"], "year": str(year - 1911), "month": f"{month:02d}"},
+def get_tw_monthly_revenue(session: requests.Session, ticker: str, company: dict[str, str], start: date, end: date):
+    response = session.get(
+        FINMIND_URL,
+        params={"dataset": "TaiwanStockMonthRevenue", "data_id": company["code"],
+                "start_date": start.isoformat(), "end_date": end.isoformat()},
         timeout=30,
     )
     response.raise_for_status()
-    if "FOR SECURITY REASONS" in response.text:
-        raise RuntimeError("MOPS 回傳安全性阻擋頁面")
-    for table in pd.read_html(response.text):
-        table = table.astype(str)
-        rows = table[table.apply(lambda row: row.str.contains(company["code"]).any(), axis=1)]
-        if not rows.empty:
-            values = [parse_revenue(value) for value in rows.iloc[0]]
-            values = [value for value in values if value is not None and value != float(company["code"])]
-            if values:
-                return {"ticker": ticker, "company_name": company["name"], "market": "TW",
-                        "revenue_period": f"{year:04d}-{month:02d}", "period_type": "monthly",
-                        "revenue": values[0], "currency": "TWD", "source": MOPS_URL}
-    return None
+    payload = response.json()
+    if payload.get("status") != 200:
+        raise RuntimeError(payload.get("msg", "FinMind 回傳錯誤"))
+    records = []
+    for item in payload.get("data", []):
+        revenue = parse_revenue(item.get("revenue"))
+        if revenue is not None:
+            records.append({"ticker": ticker, "company_name": company["name"], "market": "TW",
+                            "revenue_period": f"{item['revenue_year']:04d}-{item['revenue_month']:02d}",
+                            "period_type": "monthly", "revenue": revenue, "currency": "TWD",
+                            "source": FINMIND_URL})
+    return records
 
 
 def get_us_quarterly_revenue(session: requests.Session, ticker: str, company: dict[str, str], start: date, end: date):
@@ -104,14 +103,11 @@ def main() -> None:
     records, errors = [], []
     for ticker, company in COMPANIES.items():
         if company["market"] == "TW":
-            for year, month in month_range(args.start, args.end):
-                try:
-                    record = get_tw_monthly_revenue(session, ticker, company, year, month)
-                    if record:
-                        records.append(record)
-                except (OSError, requests.RequestException, RuntimeError, ValueError) as error:
-                    errors.append(f"{ticker} {year}-{month:02d}: {error}")
-                time.sleep(max(0, args.delay))
+            try:
+                records.extend(get_tw_monthly_revenue(session, ticker, company, args.start, args.end))
+            except (OSError, requests.RequestException, RuntimeError, ValueError) as error:
+                errors.append(f"{ticker}: {error}")
+            time.sleep(max(0, args.delay))
         else:
             try:
                 records.extend(get_us_quarterly_revenue(session, ticker, company, args.start, args.end))
